@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.mytatis.dto.CustomerEntity">
+
+
+    <insert id="insert" parameterType="com.mytatis.dto.CustomerEntity">
+       INSERT INTO customer (id,cus_name,cus_age) VALUES (#{id},#{name},#{age})
+    </insert>
+    <select id="queryAll" resultType="_customer">
+        select
+         id as id,
+         cus_name as name,
+         cus_age as age
+         from customer
+    </select>
+    <select id="querybyId" parameterType="int" resultType="_customer">
+        select
+         id as id,
+         cus_name as name,
+         cus_age as age
+         from customer where id=#{id}
+    </select>
+
+    <update id="updata" parameterType="_customer">
+        UPDATE customer set cus_name=#{name} , cus_age = #{age} where id = #{id}
+    </update>
+
+    <delete id="delete" parameterType="int">
+        DELETE FROM customer where id = #{id}
+    </delete>
+
+</mapper>
