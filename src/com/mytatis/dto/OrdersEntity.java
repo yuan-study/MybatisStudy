@@ -1,10 +1,13 @@
 package com.mytatis.dto;
 
+import org.apache.ibatis.type.Alias;
+
 import java.io.Serializable;
 
 /**
  * Created by zhangyuanyuan031 on 2017/1/20.
  */
+@Alias("_order")
 public class OrdersEntity implements Serializable {
     private Integer id;
     private String no;

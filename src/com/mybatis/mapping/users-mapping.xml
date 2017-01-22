@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!-- Created by Administrator on 2017/1/22. -->
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.user.UserEntity">
+
+
+    <insert id="bindVal" parameterType="dto.user">
+        <bind name="" value=""
+    </insert>
+
+    <update id="updateSomeColumns" parameterType="dto.user">
+        UPDATE users
+        <set>
+            <if test="userName !=null and userName !=''">
+                user_name = #{userName},
+            </if>
+            <if test="cardId !=null and cardId != ''">
+                card_id = #{cardId}
+            </if>
+        </set>
+        <where>
+            id = #{id}
+        </where>
+    </update>
+
+    <insert id="insert" parameterType="dto.user">
+      <selectKey keyProperty="id" resultType="java.lang.String" order="BEFORE">
+          SELECT UUID()
+      </selectKey>
+      INSERT INTO users (id,user_name,pwd,email,card_id,create_date)
+        VALUES (#{id},#{userName},#{pwd},#{email},#{cardId},#{createDate})
+    </insert>
+
+    <insert id="uuidInsert" parameterType="dto.user">
+        INSERT INTO users (id,user_name,pwd,email,card_id,create_date)
+        VALUES (UUID(),#{userName},#{pwd},#{email},#{cardId},#{createDate})
+    </insert>
+
+</mapper>

@@ -10,8 +10,11 @@
 
     <typeAliases>
         <typeAlias type="com.mytatis.dto.CustomerEntity" alias="_customer"/>
-        <typeAlias type="com.mytatis.dto.OrdersEntity" alias="_orders"/>
+        <package name="com.mytatis.dto"></package>
     </typeAliases>
+ <!--   <settings>
+        <setting name="defaultScriptingLanguage" value="mysql"/>
+    </settings>-->
     <environments default="development">
         <environment id="development">
             <transactionManager type="JDBC"/>
@@ -25,5 +28,7 @@
     </environments>
     <mappers>
         <mapper resource="com/mybatis/mapping/customer-mapping.xml"/>
+        <mapper resource="com/mybatis/mapping/orders-mapping.xml"/>
+        <mapper resource="com/mybatis/mapping/users-mapping.xml"/>
     </mappers>
 </configuration>

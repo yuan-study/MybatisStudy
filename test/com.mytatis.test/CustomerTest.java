@@ -1,10 +1,11 @@
 package com.mytatis.test;
 
 import com.mytatis.dto.CustomerEntity;
+import com.mytatis.dto.OrdersEntity;
 import org.apache.ibatis.io.Resources;
-import org.apache.ibatis.mapping.Environment;
-import org.apache.ibatis.session.*;
-import org.apache.ibatis.session.defaults.DefaultSqlSessionFactory;
+import org.apache.ibatis.session.SqlSession;
+import org.apache.ibatis.session.SqlSessionFactory;
+import org.apache.ibatis.session.SqlSessionFactoryBuilder;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -25,10 +26,26 @@ public class CustomerTest {
     @BeforeClass
     public static void initSF() throws IOException {
         InputStream inputStream = Resources.getResourceAsStream("mybatis-config.xml");
-         sf =  new SqlSessionFactoryBuilder().build(inputStream);
+        sf =  new SqlSessionFactoryBuilder().build(inputStream);
     }
 
+    @Test
+    public void testSelectOrderAll() throws Exception{
+        SqlSession sqlSession = sf.openSession();
+        List<OrdersEntity> list = sqlSession.selectList("com.order.queryAllOrder");
+        System.out.println(list);
+    }
 
+    @Test
+    public void testInsertOrder() throws Exception{
+        SqlSession sqlSession = sf.openSession();
+        OrdersEntity ordersEntity = new OrdersEntity();
+        ordersEntity.setId(123);
+        ordersEntity.setNo("abc1343lk");
+        ordersEntity.setPrice(12.43f);
+        sqlSession.insert("com.order.insert",ordersEntity);
+        sqlSession.commit();
+    }
 
     @Test
     public void testDel() throws Exception{
