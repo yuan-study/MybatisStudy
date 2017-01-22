@@ -4,6 +4,9 @@ cus_name VARCHAR(50),
 cus_age INT
 )
 
+insert into customer VALUES (11,'ZHANGSAN',18)
+
+insert into customer VALUES (12,'LISI',123)
 
 SELECT * FROM customer
 
@@ -17,6 +20,8 @@ order_id INT PRIMARY KEY,
 order_no VARCHAR(100),
 order_price FLOAT
 )
+
+select * from customer
 
 
 

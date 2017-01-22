@@ -87,7 +87,7 @@ public class CustomerTest {
         logger.info("开始插入数据");
         SqlSession session = sf.openSession();
         CustomerEntity customer = new CustomerEntity();
-        customer.setId(11);
+        customer.setId(221);
         customer.setName("xiaowang");
         customer.setAge(20);
         session.insert("com.mytatis.dto.CustomerEntity.insert",customer);

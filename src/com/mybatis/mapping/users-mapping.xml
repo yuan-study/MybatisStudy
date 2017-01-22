@@ -5,9 +5,9 @@
 <mapper namespace="com.user.UserEntity">
 
 
-    <insert id="bindVal" parameterType="dto.user">
+   <!-- <insert id="bindVal" parameterType="dto.user">
         <bind name="" value=""
-    </insert>
+    </insert>-->
 
     <update id="updateSomeColumns" parameterType="dto.user">
         UPDATE users
