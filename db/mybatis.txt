@@ -1,0 +1,283 @@
+MyBatis使用
+1、mybatis-config.xml 核心配置文件
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE configuration
+        PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-config.dtd">
+<configuration>
+    <!--引入外面资源文件-->
+    <properties resource="dataSource.properties">
+        <property name="username" value="root"/>
+    </properties>
+
+    <typeAliases>
+        <typeAlias type="com.mytatis.dto.CustomerEntity" alias="_customer"/>
+        <package name="com.mytatis.dto"></package>
+    </typeAliases>
+ <!--   <settings>
+        <setting name="defaultScriptingLanguage" value="mysql"/>
+    </settings>-->
+    <environments default="development">
+        <environment id="development">
+            <transactionManager type="JDBC"/>
+            <dataSource type="POOLED">
+                <property name="driver" value="${driverclass}"/>
+                <property name="url" value="${url}"/>
+                <property name="username" value="${username}"/>
+                <property name="password" value="${password}"/>
+            </dataSource>
+        </environment>
+    </environments>
+    <mappers>
+        <mapper resource="com/mybatis/mapping/customer-mapping.xml"/>
+        <mapper resource="com/mybatis/mapping/orders-mapping.xml"/>
+        <mapper resource="com/mybatis/mapping/users-mapping.xml"/>
+    </mappers>
+</configuration>
+
+2、核心类：SqlSessionFactory 、 SqlSession这两个类
+ private static SqlSessionFactory sf;
+
+    @BeforeClass
+    public static void initSF() throws IOException {
+        InputStream inputStream = Resources.getResourceAsStream("mybatis-config.xml");
+        sf =  new SqlSessionFactoryBuilder().build(inputStream);
+    }
+
+    @Test
+    public void testorderForeign() throws Exception{
+        SqlSession sqlSession = sf.openSession();
+        CustomerEntity customerEntity =sqlSession.selectOne("com.mytatis.dto.CustomerEntity.selectCustomandOrder",1);
+        System.out.println(customerEntity);
+    }
+
+3、mapping 映射文件：
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.mytatis.dto.CustomerEntity"></mapper>
+
+4、来个简简单单的demo吧：
+    <insert id="insert" parameterType="_order">
+      INSERT INTO orders (order_id,order_no,order_price) VALUES (#{id},#{no},#{price})
+    </insert>
+
+5、package怎么用：
+package com.mytatis.dto;
+
+import org.apache.ibatis.type.Alias;
+
+import java.io.Serializable;
+
+/**
+ * Created by zhangyuanyuan031 on 2017/1/20.
+ */
+@Alias("_order") //也可以这样设置别名，这时候一定要在config配置文件中设置好package
+public class OrdersEntity implements Serializable {
+    private Integer id;
+    private String no;
+    private Float price;
+    private CustomerEntity customerEntity;
+
+    @Override
+    public String toString() {
+        return "OrdersEntity{" +
+                "id=" + id +
+                ", no='" + no + '\'' +
+                ", price=" + price +
+                ", customerEntity=" + customerEntity +
+                '}';
+    }
+
+    public CustomerEntity getCustomerEntity() {
+        return customerEntity;
+    }
+
+    public void setCustomerEntity(CustomerEntity customerEntity) {
+        this.customerEntity = customerEntity;
+    }
+}
+
+
+6、做个复杂点的实例
+1):创建两个表：customer和orders表是一对多的关系
+CREATE TABLE customer(
+id INT PRIMARY KEY,
+cus_name VARCHAR(50),
+cus_age INT
+)
+
+
+CREATE TABLE orders(
+order_id INT PRIMARY KEY,
+order_no VARCHAR(100),
+order_price FLOAT
+)
+
+ALTER TABLE orders ADD COLUMN customer_id INT
+ALTER TABLE orders ADD CONSTRAINT FOREIGN KEY (customer_id) REFERENCES customer(id)
+
+2）创建对应的两个javaBean类
+package com.mytatis.dto;
+
+import java.io.Serializable;
+import java.util.List;
+
+/**
+ * Created by zhangyuanyuan031 on 2017/1/20.
+ */
+public class CustomerEntity  implements Serializable{
+    private Integer id;
+    private String name;
+    private Integer age;
+    private List<OrdersEntity> ordersEntityList;
+    ...
+
+}
+@Alias("_order")
+public class OrdersEntity implements Serializable {
+    private Integer id;
+    private String no;
+    private Float price;
+    private CustomerEntity customerEntity;
+    ....
+}
+
+3):现在想获取每个订单，每个订单中一定有一个CustomerEntity。
+ <resultMap id="orderMap" type="_order">
+        <id column="oid" property="id" javaType="java.lang.Integer"/>
+        <result column="ono" property="no"/>
+        <result column="oprice" property="price" javaType="java.lang.Float"/>
+        <association property="customerEntity" javaType="_customer">
+            <id column="cid" property="id" javaType="java.lang.Integer"/>
+            <result column="cname" property="name"/>
+            <result column="cage" property="age"/>
+        </association>
+    </resultMap>
+
+    <select id="selectOrders" resultMap="orderMap">
+        SELECT
+        o.order_id as oid,
+        o.order_no as ono,
+        o.order_price as oprice,
+        c.id as cid,
+        c.cus_name as cname,
+        c.cus_age as cage
+        FROM orders o LEFT OUTER JOIN customer c ON o.customer_id = c.id
+    </select>
+
+测试：
+    @Test
+    public void testOrders() throws Exception{
+        logger.debug("关联查询开始了");
+        SqlSession session = sf.openSession();
+        List<OrdersEntity> list= session.selectList("selectOrders");
+        System.out.println(list);
+    }
+
+4）想获取某个客户，把且把这个客户所有的订单都显示出来
+这时有两种做法：
+1、可以两个sql语句：
+ <sql id="sqlCustomer">
+           SELECT id,cus_name,cus_age FROM customer
+    </sql>
+
+    <resultMap id="customerMap" type="_customer">
+        <id column="id" property="id" javaType="java.lang.Integer"/>
+        <result column="cus_name" property="name"/>
+        <result column="cus_age" property="age"/>
+	<!-- 注意这里有个坑， property是javabean中的字段，ofType是返回值类型 ，column 是父查询中字段，也是要传给子查询的值。select：子查询的id-->
+        <collection property="ordersEntityList" ofType="_order" column="id" select="selectOrderByForeignKey"/>
+    </resultMap>
+
+    <resultMap id="orderMap" type="_order">
+        <id column="order_id" property="id" javaType="java.lang.Integer"/>
+        <result column="order_no" property="no"/>
+        <result column="order_price" property="price" javaType="java.lang.Float"/>
+    </resultMap>
+
+    <select id="selectOrderByForeignKey" parameterType="int" resultMap="orderMap">
+        <![CDATA[
+          select * from orders where customer_id = #{id}
+        ]]>
+    </select>
+
+    <select id="selectConstraintOrder" parameterType="int" resultMap="customerMap">
+        <include refid="sqlCustomer"/>
+        <![CDATA[
+            WHERE id = #{id}
+        ]]>
+    </select>
+
+测试：
+    @Test
+    public void testQueryCustomer() throws Exception{
+        SqlSession sqlSession = sf.openSession();
+        CustomerEntity customerEntity = sqlSession.selectOne("selectConstraintOrder",1);
+        System.out.println(customerEntity);
+    }
+
+2、每二种方案，采用联合查询（推荐这种方式）
+ <resultMap id="userCollectionMap" type="_customer">
+        <id column="cid" property="id" javaType="java.lang.Integer"/>
+        <result column="cname" property="name"/>
+        <result column="cage" property="age"/>
+        <collection property="ordersEntityList" ofType="_order">
+            <id column="oid" property="id" javaType="java.lang.Integer"/>
+            <result column="ono" property="no"/>
+            <result column="oprice" property="price"/>
+        </collection>
+    </resultMap>
+
+    <select id="selectCustomandOrder" parameterType="int" resultMap="userCollectionMap">
+        <![CDATA[
+           SELECT
+                c.id AS cid,
+                c.cus_name AS cname,
+                c.cus_age AS cage,
+                o.order_id as oid,
+                o.order_no as ono,
+                o.order_price as oprice
+                FROM orders o LEFT OUTER JOIN customer c ON o.customer_id = c.id
+                where c.id = #{id}
+        ]]>
+    </select>
+
+测试：
+    @Test
+    public void testorderForeign() throws Exception{
+        SqlSession sqlSession = sf.openSession();
+        CustomerEntity customerEntity =sqlSession.selectOne("com.mytatis.dto.CustomerEntity.selectCustomandOrder",1);
+        System.out.println(customerEntity);
+    }
+
+
+5）其它的东西：
+ <update id="updateSomeColumns" parameterType="dto.user">
+        UPDATE users
+        <set>
+            <if test="userName !=null and userName !=''">
+                user_name = #{userName},
+            </if>
+            <if test="cardId !=null and cardId != ''">
+                card_id = #{cardId}
+            </if>
+        </set>
+        <where>
+            id = #{id}
+        </where>
+    </update>
+
+    <insert id="insert" parameterType="dto.user">
+        <selectKey keyProperty="id" resultType="java.lang.String" order="BEFORE">
+            SELECT UUID()
+        </selectKey>
+        INSERT INTO users (id,user_name,pwd,email,card_id,create_date)
+        VALUES (#{id},#{userName},#{pwd},#{email},#{cardId},#{createDate})
+    </insert>
+
+    <insert id="uuidInsert" parameterType="dto.user">
+        INSERT INTO users (id,user_name,pwd,email,card_id,create_date)
+        VALUES (UUID(),#{userName},#{pwd},#{email},#{cardId},#{createDate})
+    </insert>
+
