@@ -4,11 +4,6 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.user.UserEntity">
 
-
-   <!-- <insert id="bindVal" parameterType="dto.user">
-        <bind name="" value=""
-    </insert>-->
-
     <update id="updateSomeColumns" parameterType="dto.user">
         UPDATE users
         <set>
@@ -25,10 +20,10 @@
     </update>
 
     <insert id="insert" parameterType="dto.user">
-      <selectKey keyProperty="id" resultType="java.lang.String" order="BEFORE">
-          SELECT UUID()
-      </selectKey>
-      INSERT INTO users (id,user_name,pwd,email,card_id,create_date)
+        <selectKey keyProperty="id" resultType="java.lang.String" order="BEFORE">
+            SELECT UUID()
+        </selectKey>
+        INSERT INTO users (id,user_name,pwd,email,card_id,create_date)
         VALUES (#{id},#{userName},#{pwd},#{email},#{cardId},#{createDate})
     </insert>
 

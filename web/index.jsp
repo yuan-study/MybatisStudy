@@ -4,9 +4,9 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <html>
   <head>
-    <title>$Title$</title>
+    <title>mytitle</title>
   </head>
   <body>
-      aaaa
+      aaaabbb
   </body>
 </html>

@@ -1,6 +1,7 @@
 package com.mytatis.dto;
 
 import java.io.Serializable;
+import java.util.List;
 
 /**
  * Created by zhangyuanyuan031 on 2017/1/20.
@@ -9,6 +10,15 @@ public class CustomerEntity  implements Serializable{
     private Integer id;
     private String name;
     private Integer age;
+    private List<OrdersEntity> ordersEntityList;
+
+    public List<OrdersEntity> getOrdersEntityList() {
+        return ordersEntityList;
+    }
+
+    public void setOrdersEntityList(List<OrdersEntity> ordersEntityList) {
+        this.ordersEntityList = ordersEntityList;
+    }
 
     public Integer getId() {
         return id;
@@ -40,6 +50,7 @@ public class CustomerEntity  implements Serializable{
                 "id=" + id +
                 ", name='" + name + '\'' +
                 ", age=" + age +
+                ", ordersEntityList=" + ordersEntityList +
                 '}';
     }
 }

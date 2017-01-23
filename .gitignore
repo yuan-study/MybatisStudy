@@ -4,3 +4,4 @@ logs/*
 .idea/*
 MybatisStudy.iml
 test/test.iml
+src/*.properties

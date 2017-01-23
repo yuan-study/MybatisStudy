@@ -6,6 +6,7 @@ import org.apache.ibatis.io.Resources;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.apache.ibatis.session.SqlSessionFactoryBuilder;
+import org.apache.logging.log4j.core.config.Order;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -27,6 +28,27 @@ public class CustomerTest {
     public static void initSF() throws IOException {
         InputStream inputStream = Resources.getResourceAsStream("mybatis-config.xml");
         sf =  new SqlSessionFactoryBuilder().build(inputStream);
+    }
+
+    @Test
+    public void testorderForeign() throws Exception{
+        SqlSession sqlSession = sf.openSession();
+        CustomerEntity customerEntity =sqlSession.selectOne("com.mytatis.dto.CustomerEntity.selectCustomandOrder",1);
+        System.out.println(customerEntity);
+    }
+
+    @Test
+    public void testOrderForeign() throws Exception{
+        SqlSession sqlSession = sf.openSession();
+        List<Order> mylist=sqlSession.selectList("com.mytatis.dto.CustomerEntity.selectOrderByForeignKey",1);
+        System.out.println(mylist);
+    }
+
+    @Test
+    public void testQueryCustomer() throws Exception{
+        SqlSession sqlSession = sf.openSession();
+        CustomerEntity customerEntity = sqlSession.selectOne("com.mytatis.dto.CustomerEntity.selectConstraintOrder",1);
+        System.out.println(customerEntity);
     }
 
     @Test

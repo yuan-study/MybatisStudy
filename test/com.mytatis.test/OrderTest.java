@@ -1,5 +1,6 @@
 package com.mytatis.test;
 
+import com.mytatis.dto.OrdersEntity;
 import com.mytatis.dto.UserEntity;
 import org.apache.ibatis.io.Resources;
 import org.apache.ibatis.session.SqlSession;
@@ -13,30 +14,43 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Date;
+import java.util.List;
 
 /**
  * Created by zhangyuanyuan031 on 2017/1/22.
  */
 public class OrderTest {
-    private static final Logger logger= LoggerFactory.getLogger(OrderTest.class);
+    private static final Logger logger = LoggerFactory.getLogger(OrderTest.class);
 
     private static SqlSessionFactory sf;
 
     @BeforeClass
     public static void initSF() throws IOException {
         InputStream inputStream = Resources.getResourceAsStream("mybatis-config.xml");
-        sf =  new SqlSessionFactoryBuilder().build(inputStream);
+        sf = new SqlSessionFactoryBuilder().build(inputStream);
     }
 
 
     @Test
-    public void testBindVal() throws Exception{
-
+    public void testOrders() throws Exception{
+        logger.debug("关联查询开始了");
+        SqlSession session = sf.openSession();
+        List<OrdersEntity> list= session.selectList("com.order.selectOrders");
+        System.out.println(list);
     }
 
     @Test
-    public void testUpdateUser() throws Exception{
-        SqlSession session=sf.openSession();
+    public void testBindVal() throws Exception {
+        SqlSession session = sf.openSession();
+        UserEntity userEntity = new UserEntity();
+        userEntity.setId("lisis");
+        UserEntity aa = session.selectOne("com.user.UserEntity.selectbyid", userEntity);
+        System.out.println(aa);
+    }
+
+    @Test
+    public void testUpdateUser() throws Exception {
+        SqlSession session = sf.openSession();
         UserEntity user = new UserEntity();
         user.setId("lisis");
         user.setUserName("lisisi");
@@ -49,8 +63,8 @@ public class OrderTest {
     }
 
     @Test
-    public void testInsertUser() throws Exception{
-        SqlSession session=sf.openSession();
+    public void testInsertUser() throws Exception {
+        SqlSession session = sf.openSession();
         UserEntity user = new UserEntity();
         user.setUserName("yuan");
         user.setCardId("1234");
@@ -60,7 +74,6 @@ public class OrderTest {
         session.insert("com.user.UserEntity.uuidInsert", user);
         session.commit();
     }
-
 
 
 }

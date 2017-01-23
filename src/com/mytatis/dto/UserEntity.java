@@ -19,18 +19,6 @@ public class UserEntity implements Serializable {
     private Date createDate;
     private String dataBaseName;
 
-    @Override
-    public String toString() {
-        return "UserEntity{" +
-                "id='" + id + '\'' +
-                ", userName='" + userName + '\'' +
-                ", pwd='" + pwd + '\'' +
-                ", email='" + email + '\'' +
-                ", cardId='" + cardId + '\'' +
-                ", createDate=" + createDate +
-                ", dataBaseName='" + dataBaseName + '\'' +
-                '}';
-    }
 
     public String getDataBaseName() {
         return dataBaseName;
@@ -86,5 +74,19 @@ public class UserEntity implements Serializable {
 
     public void setCreateDate(Date createDate) {
         this.createDate = createDate;
+    }
+
+
+    @Override
+    public String toString() {
+        return "UserEntity{" +
+                "id='" + id + '\'' +
+                ", userName='" + userName + '\'' +
+                ", pwd='" + pwd + '\'' +
+                ", email='" + email + '\'' +
+                ", cardId='" + cardId + '\'' +
+                ", createDate=" + createDate +
+                ", dataBaseName='" + dataBaseName + '\'' +
+                '}';
     }
 }

@@ -12,6 +12,7 @@ public class OrdersEntity implements Serializable {
     private Integer id;
     private String no;
     private Float price;
+    private CustomerEntity customerEntity;
 
     @Override
     public String toString() {
@@ -19,7 +20,16 @@ public class OrdersEntity implements Serializable {
                 "id=" + id +
                 ", no='" + no + '\'' +
                 ", price=" + price +
+                ", customerEntity=" + customerEntity +
                 '}';
+    }
+
+    public CustomerEntity getCustomerEntity() {
+        return customerEntity;
+    }
+
+    public void setCustomerEntity(CustomerEntity customerEntity) {
+        this.customerEntity = customerEntity;
     }
 
     public Integer getId() {
